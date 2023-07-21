@@ -14,8 +14,8 @@ Globals:
     MemorySize: 512
     Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
       Variables:
-        APP_CLIENT_ID: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gEZ6b50E8Ofhr75HD6iTBtiAAAAeDB2BgkqhkiG9w0BBwagaTBnAgEAMGIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMgP3XZf+oY2gkZLs1AgEQgDVR//dbMy/pALuIOA1JxAN9I7oPpcrSZZiMUNcSOx/rdrK+6XHwqJKSBMsOHahBkzT6LRsdjg==
-        APP_CLIENT_SECRET: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gERGB0cpS9jg7HtgqFcGN8mAAAAlDCBkQYJKoZIhvcNAQcGoIGDMIGAAgEAMHsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM2gz0hxEtyPOJ/yjHAgEQgE6HP5vy1uFG84IjqmJuGL7aNvRfPj/FBqHz+teidSeG7xHMghQxBRSuWb/tYBMrbX15edGvWCIEeHvqOG3SImKMTuZc/Zn2+QM+VsNbHhw=
+        APP_CLIENT_ID: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gFFp1un6PQqOk42MOCgTmuzAAAAeDB2BgkqhkiG9w0BBwagaTBnAgEAMGIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMssVlAeFN3p8P3O1eAgEQgDUlci0vj+rCuEQng3TbX5BsQ9rLmbNSX2Wrq7MKMVVqDQXJrcXbo8xTWIK9RmhK7EIAnN3kpg==
+        APP_CLIENT_SECRET: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gF1161AUS12ArTlPCi98TrCAAAAlDCBkQYJKoZIhvcNAQcGoIGDMIGAAgEAMHsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMVxgvXeYzImQqiicoAgEQgE4bIlUiywt9zrnZTRAyvfNocr7M3XsDYe+5cQIJonsnOJjfQg/Pf88UOxpYaKRnj0TAI3EIakDrFXp/9HZtuuPKFNpQXAKP7HkHfB5vY6I=
 
 
 Resources:
@@ -30,6 +30,19 @@ Resources:
           Properties:
             Path: /users
             Method: post
+  ConfirmUserHandlerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: UsersApi
+      Handler: com.jdlearner.users.handler.ConfirmUserHandler::handleRequest
+      Events:
+        CreateUser:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /users/confirm
+            Method: post
+
+  
 
 Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function

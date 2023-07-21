@@ -55,6 +55,24 @@ public class CognitoUserService {
         return createdUserResult;
     }
 
+    public JsonObject confirmUser(String appClientId, String appSecret, String email, String confirmationCode) {
+        ConfirmSignUpRequest confirmSignUpRequest = ConfirmSignUpRequest.builder()
+                .secretHash(calculateSecretHash(appClientId, appSecret, email))
+                .username(email)
+                .confirmationCode(confirmationCode)
+                .clientId(appClientId)
+                .build();
+
+        ConfirmSignUpResponse confirmUserResponse = this.cognitoIdentityProviderClient
+                .confirmSignUp(confirmSignUpRequest);
+
+        JsonObject confirmProcessResponse = new JsonObject();
+        confirmProcessResponse.addProperty("isSuccess", confirmUserResponse.sdkHttpResponse().isSuccessful());
+        confirmProcessResponse.addProperty("statusCode", confirmUserResponse.sdkHttpResponse().statusCode());
+
+        return confirmProcessResponse;
+    }
+
     public String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
         final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 
