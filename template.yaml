@@ -1,28 +1,29 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  photo-app-users-api-cognito
-
+  users-api-cognito
   Sample SAM Template for photo-app-users-api-cognito
 
 # More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
 Globals:
   Function:
     Timeout: 20
+    Runtime: java11
+    Architectures:
+      - x86_64
+    MemorySize: 512
+    Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+      Variables:
+        APP_CLIENT_ID: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gEZ6b50E8Ofhr75HD6iTBtiAAAAeDB2BgkqhkiG9w0BBwagaTBnAgEAMGIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMgP3XZf+oY2gkZLs1AgEQgDVR//dbMy/pALuIOA1JxAN9I7oPpcrSZZiMUNcSOx/rdrK+6XHwqJKSBMsOHahBkzT6LRsdjg==
+        APP_CLIENT_SECRET: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gERGB0cpS9jg7HtgqFcGN8mAAAAlDCBkQYJKoZIhvcNAQcGoIGDMIGAAgEAMHsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQM2gz0hxEtyPOJ/yjHAgEQgE6HP5vy1uFG84IjqmJuGL7aNvRfPj/FBqHz+teidSeG7xHMghQxBRSuWb/tYBMrbX15edGvWCIEeHvqOG3SImKMTuZc/Zn2+QM+VsNbHhw=
+
 
 Resources:
   CreateUserHandlerFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      CodeUri: PhotoAppUsersAPICognito
-      Handler: com.appsdeveloperblog.aws.lambda.CreateUserHandler::handleRequest
-      Runtime: java11
-      Architectures:
-        - x86_64
-      MemorySize: 512
-      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
-        Variables:
-          PARAM1: VALUE
+      CodeUri: UsersApi
+      Handler: com.jdlearner.users.handler.CreateUserHandler::handleRequest
       Events:
         CreateUser:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
