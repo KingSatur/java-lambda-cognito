@@ -14,6 +14,7 @@ Globals:
     MemorySize: 512
     Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
       Variables:
+        USER_POOL_ID: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gHHgj+HbdaN2HHVP2pJyjkRAAAAcTBvBgkqhkiG9w0BBwagYjBgAgEAMFsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMONob7gIIb3/IRdKAAgEQgC5/jL7IGwtAhTAp3l2cnMeo6DkjfhMPQvWjcdbtv0xtKLGYhupEf676382aTyW0
         APP_CLIENT_ID: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gFFp1un6PQqOk42MOCgTmuzAAAAeDB2BgkqhkiG9w0BBwagaTBnAgEAMGIGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMssVlAeFN3p8P3O1eAgEQgDUlci0vj+rCuEQng3TbX5BsQ9rLmbNSX2Wrq7MKMVVqDQXJrcXbo8xTWIK9RmhK7EIAnN3kpg==
         APP_CLIENT_SECRET: AQICAHj3XXenqbuqH/YuInNSnR5+QkNSQeCxfG/fxlVgREvo7gF1161AUS12ArTlPCi98TrCAAAAlDCBkQYJKoZIhvcNAQcGoIGDMIGAAgEAMHsGCSqGSIb3DQEHATAeBglghkgBZQMEAS4wEQQMVxgvXeYzImQqiicoAgEQgE4bIlUiywt9zrnZTRAyvfNocr7M3XsDYe+5cQIJonsnOJjfQg/Pf88UOxpYaKRnj0TAI3EIakDrFXp/9HZtuuPKFNpQXAKP7HkHfB5vY6I=
 
@@ -36,7 +37,7 @@ Resources:
       CodeUri: UsersApi
       Handler: com.jdlearner.users.handler.ConfirmUserHandler::handleRequest
       Events:
-        CreateUser:
+        ConfirmUser:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /users/confirm
@@ -47,11 +48,29 @@ Resources:
       CodeUri: UsersApi
       Handler: com.jdlearner.users.handler.LoginHandler::handleRequest
       Events:
-        CreateUser:
+        LoginUser:
           Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /auth/login
             Method: post
+  AddUserToGroupHandlerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: UsersApi
+      Handler: com.jdlearner.users.handler.AddUserToGroupHandler::handleRequest
+      Policies: 
+        - Version: '2012-10-17'
+          Statement: 
+            - Effect: Allow
+              Action:
+               - 'cognito-idp:AdminAddUserToGroup'
+              Resource: "arn:aws:cognito-idp:us-east-1:727894781477:userpool/us-east-1_gfoRc7oGa"
+      Events:
+        AddUserToGroup:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /users/{userName}/add-group
+            Method: put
 
   
 

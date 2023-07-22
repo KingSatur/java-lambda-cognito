@@ -14,14 +14,18 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 
 import java.util.Map;
 
-public class ConfirmUserHandler implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
+public class AddUserToGroupHandler
+        implements RequestHandler<APIGatewayProxyRequestEvent, APIGatewayProxyResponseEvent> {
 
     private final String appClientId;
     private final String appClientSecret;
+
+    private final String userPoolId;
     private final CognitoUserService cognitoUserService;
     private final Gson gson;
 
-    public ConfirmUserHandler() {
+    public AddUserToGroupHandler() {
+        this.userPoolId = DecryptUtil.decryptKey("USER_POOL_ID");
         this.gson = new Gson();
         this.appClientId = DecryptUtil.decryptKey("APP_CLIENT_ID");
         this.appClientSecret = DecryptUtil.decryptKey("APP_CLIENT_SECRET");
@@ -31,17 +35,14 @@ public class ConfirmUserHandler implements RequestHandler<APIGatewayProxyRequest
     @Override
     public APIGatewayProxyResponseEvent handleRequest(APIGatewayProxyRequestEvent input, Context context) {
 
-
         JsonObject userDetails = JsonParser.parseString(input.getBody()).getAsJsonObject();
         APIGatewayProxyResponseEvent response = new APIGatewayProxyResponseEvent()
                 .withHeaders(Map.of("Content-Type", "application/json"));
-
         try {
-            JsonObject confirmUserResponse = this.cognitoUserService.confirmUser(
-                    this.appClientId,
-                    this.appClientSecret,
-                    userDetails.get("email").getAsString(),
-                    userDetails.get("code").getAsString());
+            JsonObject confirmUserResponse = this.cognitoUserService.addUserToGroup(
+                    userDetails.get("groupName").getAsString(),
+                    input.getPathParameters().get("userName"),
+                    this.userPoolId);
             response.withStatusCode(200);
             response.withBody(this.gson.toJson(confirmUserResponse, JsonObject.class));
         } catch (AwsServiceException e) {
@@ -58,5 +59,6 @@ public class ConfirmUserHandler implements RequestHandler<APIGatewayProxyRequest
             response.withStatusCode(500);
         }
         return response;
+
     }
 }

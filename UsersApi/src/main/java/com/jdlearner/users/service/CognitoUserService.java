@@ -12,6 +12,8 @@ import javax.crypto.spec.SecretKeySpec;
 import com.google.gson.JsonObject;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUserToGroupRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminAddUserToGroupResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ConfirmSignUpRequest;
@@ -94,6 +96,23 @@ public class CognitoUserService {
         loginUserResult.addProperty("idToken", initiateAuthResponse.authenticationResult().idToken());
         loginUserResult.addProperty("token", initiateAuthResponse.authenticationResult().accessToken());
         loginUserResult.addProperty("refresh", initiateAuthResponse.authenticationResult().refreshToken());
+        return loginUserResult;
+    }
+
+
+    public JsonObject addUserToGroup(String groupName, String username, String userPoolId){
+        AdminAddUserToGroupRequest adminAddUserToGroupRequest = AdminAddUserToGroupRequest.builder()
+                .groupName(groupName)
+                .username(username)
+                .userPoolId(userPoolId)
+                .build();
+
+        AdminAddUserToGroupResponse adminAddUserToGroupResponse = this.cognitoIdentityProviderClient
+                .adminAddUserToGroup(adminAddUserToGroupRequest);
+        JsonObject loginUserResult = new JsonObject();
+        loginUserResult.addProperty("isSuccess",adminAddUserToGroupResponse.sdkHttpResponse().isSuccessful());
+        loginUserResult.addProperty("statusCode", adminAddUserToGroupResponse.sdkHttpResponse().statusCode());
+
         return loginUserResult;
     }
 
