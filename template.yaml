@@ -41,6 +41,17 @@ Resources:
           Properties:
             Path: /users/confirm
             Method: post
+  LoginHandlerFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      CodeUri: UsersApi
+      Handler: com.jdlearner.users.handler.LoginHandler::handleRequest
+      Events:
+        CreateUser:
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /auth/login
+            Method: post
 
   
 

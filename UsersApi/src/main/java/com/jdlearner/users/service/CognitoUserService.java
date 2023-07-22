@@ -3,6 +3,7 @@ package com.jdlearner.users.service;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.crypto.Mac;
@@ -12,8 +13,11 @@ import com.google.gson.JsonObject;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.AuthFlowType;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ConfirmSignUpRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.ConfirmSignUpResponse;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.InitiateAuthRequest;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.InitiateAuthResponse;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.SignUpResponse;
 
@@ -73,7 +77,27 @@ public class CognitoUserService {
         return confirmProcessResponse;
     }
 
-    public String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
+    public JsonObject loginUser(String email, String password, String clientId, String clientSecret){
+        InitiateAuthRequest initiateAuthRequest = InitiateAuthRequest.builder()
+                .clientId(clientId)
+                .authFlow(AuthFlowType.USER_PASSWORD_AUTH)
+                .authParameters(Map.of(
+                        "USERNAME", email,
+                        "PASSWORD", password,
+                        "SECRET_HASH", calculateSecretHash(clientId, clientSecret, email))
+                )
+                .build();
+        InitiateAuthResponse initiateAuthResponse = this.cognitoIdentityProviderClient.initiateAuth(initiateAuthRequest);
+        JsonObject loginUserResult = new JsonObject();
+        loginUserResult.addProperty("isSuccess",initiateAuthResponse.sdkHttpResponse().isSuccessful());
+        loginUserResult.addProperty("statusCode", initiateAuthResponse.sdkHttpResponse().statusCode());
+        loginUserResult.addProperty("idToken", initiateAuthResponse.authenticationResult().idToken());
+        loginUserResult.addProperty("token", initiateAuthResponse.authenticationResult().accessToken());
+        loginUserResult.addProperty("refresh", initiateAuthResponse.authenticationResult().refreshToken());
+        return loginUserResult;
+    }
+
+    private String calculateSecretHash(String userPoolClientId, String userPoolClientSecret, String userName) {
         final String HMAC_SHA256_ALGORITHM = "HmacSHA256";
 
         SecretKeySpec signingKey = new SecretKeySpec(

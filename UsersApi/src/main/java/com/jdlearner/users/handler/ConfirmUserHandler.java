@@ -7,6 +7,7 @@ import com.amazonaws.services.lambda.runtime.events.APIGatewayProxyResponseEvent
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.jdlearner.users.dto.ErrorResponse;
 import com.jdlearner.users.service.CognitoUserService;
 import com.jdlearner.users.util.DecryptUtil;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -39,12 +40,16 @@ public class ConfirmUserHandler implements RequestHandler<APIGatewayProxyRequest
             response.withStatusCode(200);
             response.withBody(this.gson.toJson(confirmUserResponse, JsonObject.class));
         } catch (AwsServiceException e) {
-            context.getLogger().log(e.getMessage());
-            response.withBody(e.awsErrorDetails().errorMessage());
-            response.withStatusCode(e.awsErrorDetails().sdkHttpResponse().statusCode());
+            ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
+            context.getLogger().log(e.awsErrorDetails().errorMessage());
+            response.withStatusCode(500);
+            response.withBody(this.gson.newBuilder().serializeNulls().create()
+                    .toJson(errorResponse, ErrorResponse.class));
         } catch (Exception e) {
+            ErrorResponse errorResponse = new ErrorResponse(e.getMessage());
             context.getLogger().log(e.getMessage());
-            response.withBody(e.getMessage());
+            response.withBody(this.gson.newBuilder().serializeNulls().create()
+                    .toJson(errorResponse, ErrorResponse.class));
             response.withStatusCode(500);
         }
         return response;
